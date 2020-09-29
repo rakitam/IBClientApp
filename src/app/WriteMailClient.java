@@ -3,17 +3,22 @@ package app;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.security.KeyStore;
+import java.security.PublicKey;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.mail.internet.MimeMessage;
+import java.security.cert.Certificate;
 
 import org.apache.xml.security.utils.JavaUtils;
 
 import com.google.api.services.gmail.Gmail;
 
+import keystore.KeyStoreReader;
+import model.mailclient.MailBody;
 import util.Base64;
 import util.GzipUtil;
 import util.IVHelper;
@@ -28,7 +33,9 @@ public class WriteMailClient extends MailClient {
 	
 	private static final String USERA_KS = "./data/usera.jks";
 	private static final String USERA_KS_PASS = "1234";
-	private static final String USERA_KS_ALIAS = "usera";
+	private static final String USERB_KS_ALIAS = "userb";
+	
+	private static KeyStoreReader keyStoreReader = new KeyStoreReader();
 	
 	public static void main(String[] args) {
 		
@@ -75,13 +82,37 @@ public class WriteMailClient extends MailClient {
 			String ciphersubjectStr = Base64.encodeToString(ciphersubject);
 			System.out.println("Kriptovan subject: " + ciphersubjectStr);
 			
+			// ucitavanje "usera.jks" keystore file-a
+			KeyStore keyStore = keyStoreReader.readKeyStore(USERA_KS, USERA_KS_PASS.toCharArray());
+			
+			// preuzimanje sertifikata userb iz keystore file-a "usera.jks"
+			Certificate certificate = keyStoreReader.getCertificateFromKeyStore(keyStore, USERB_KS_ALIAS);
+			
+			// preuzimanje javnog kljuca usera b iz ucitanog sertifikata
+			PublicKey publicKey = keyStoreReader.getPublicKeyFromCertificate(certificate);
+			System.out.println("\nProcitan javni kljuc iz sertifikata: " + publicKey);
+			
+			//kriptovanje tajnog session kljuca javnim kljucem usera b
+			Cipher rsaCipherEnc = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			
+			//inicijalizacija za kriptovanje, 
+			//kod asimetricnog algoritma kriptuje se javnim kljucem, a dekriptuje privatnim
+			rsaCipherEnc.init(Cipher.ENCRYPT_MODE, publicKey);
+			
+			//kriptovanje
+			byte[] cipherSecretKey = rsaCipherEnc.doFinal(secretKey.getEncoded());
+			System.out.println("cipherSecretKey sifrovao sam: " + Base64.encodeToString(cipherSecretKey));			
 			
 			//snimaju se bajtovi kljuca i IV.
 			JavaUtils.writeBytesToFilename(KEY_FILE, secretKey.getEncoded());
 			JavaUtils.writeBytesToFilename(IV1_FILE, ivParameterSpec1.getIV());
-			JavaUtils.writeBytesToFilename(IV2_FILE, ivParameterSpec2.getIV());
+			JavaUtils.writeBytesToFilename(IV2_FILE, ivParameterSpec2.getIV());			
 			
-        	MimeMessage mimeMessage = MailHelper.createMimeMessage(reciever, ciphersubjectStr, ciphertextStr);
+			// enkriptovani javni kljuc prenosimo u okviru tela mejla
+			MailBody mailBody = new MailBody(ciphertext, ivParameterSpec1.getIV(), ivParameterSpec2.getIV(), cipherSecretKey);
+			String csv = mailBody.toCSV();
+			
+        	MimeMessage mimeMessage = MailHelper.createMimeMessage(reciever, ciphersubjectStr, ciphertextStr + " " + csv);
         	MailWritter.sendMessage(service, "me", mimeMessage);
         	
         }catch (Exception e) {
