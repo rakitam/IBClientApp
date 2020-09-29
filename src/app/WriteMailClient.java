@@ -26,6 +26,10 @@ public class WriteMailClient extends MailClient {
 	private static final String IV1_FILE = "./data/iv1.bin";
 	private static final String IV2_FILE = "./data/iv2.bin";
 	
+	private static final String USERA_KS = "./data/usera.jks";
+	private static final String USERA_KS_PASS = "1234";
+	private static final String USERA_KS_ALIAS = "usera";
+	
 	public static void main(String[] args) {
 		
         try {
