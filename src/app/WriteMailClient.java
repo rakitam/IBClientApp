@@ -11,6 +11,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.mail.internet.MimeMessage;
+
 import java.security.cert.Certificate;
 
 import org.apache.xml.security.utils.JavaUtils;
@@ -22,6 +23,8 @@ import model.mailclient.MailBody;
 import util.Base64;
 import util.GzipUtil;
 import util.IVHelper;
+import xml.signature.SignEnveloped;
+import support.CreateXMLFile;
 import support.MailHelper;
 import support.MailWritter;
 
@@ -47,14 +50,26 @@ public class WriteMailClient extends MailClient {
             String reciever = reader.readLine();
         	
             System.out.println("Insert a subject:");
-            String subject = reader.readLine();
-            
+            String subject = reader.readLine();            
             
             System.out.println("Insert body:");
-            String body = reader.readLine();
+            String body = reader.readLine(); 
+            
+            // Kreiramo XML file i kreiramo textNodes sa unetim vrednostima subject i body
+            CreateXMLFile.createXML(subject, body);
+            System.out.println("Kreiran XML fajl");
+            
+            // Potpisujemo XML file (prolazi kroz transformaciju, dodaje se signature node, snima se potpisan dokument)
+            SignEnveloped.testIt();
+            System.out.println("XML fajl potpisan");
             
             
-            //Compression
+            
+                      
+            /* 
+             * Bez potpisa, CSV format poruka koje se razmenjuju
+             * 
+             * //Compression
             String compressedSubject = Base64.encodeToString(GzipUtil.compress(subject));
             String compressedBody = Base64.encodeToString(GzipUtil.compress(body));
             
@@ -113,7 +128,7 @@ public class WriteMailClient extends MailClient {
 			String csv = mailBody.toCSV();
 			
         	MimeMessage mimeMessage = MailHelper.createMimeMessage(reciever, ciphersubjectStr, ciphertextStr + " " + csv);
-        	MailWritter.sendMessage(service, "me", mimeMessage);
+        	MailWritter.sendMessage(service, "me", mimeMessage); */
         	
         }catch (Exception e) {
         	e.printStackTrace();
