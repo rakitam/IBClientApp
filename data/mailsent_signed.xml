@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><email>
-<subject>testiramo potpis</subject>
-<body>testiramo potpis</body>
+<subject>pravimo xml</subject>
+<body>pravimo xml</body>
 <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:SignedInfo>
 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
@@ -11,15 +11,15 @@
 <ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-<ds:DigestValue>Ysa5825Y5CS+5pl1LQY7zZG2bu0=</ds:DigestValue>
+<ds:DigestValue>aUOd5f4oG3ILWsaxxJ4bBMU+gSI=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-GyM9zewOQxZs+y+fksnprCcbiZjvGxQSRr6Gkztbn//PJyom4SSztf1Kza+elage0n6HrcvQSwVc
-M/U7rFl9YHZy0sXPW7czF/Bnf/JbMG14kvggLdUSTHZVAhE5MbGcokfWL/Pvualuorar/vMcZAwb
-tx/TN8nRwR6KOWNuXLPUY9X+UoPb5nlKCyFMZw9sfgqTbyYrYy+4NhB1HRpDF0DBUQj61sOSUuyH
-MnWWE/HpHQ9cw+K0OWn3EaU/4uA3UwwIgbNYF/DSXKtLEwrUNIsIxSsKk0waC4WtdGsFTzyocZ+i
-6IEp6XGvSInAIcZZlznAywR6YhmOPzXXuD3Lig==
+N+lrx5gtnHn3U9YM6Z5ZyFWXUkrUxDE7wTrgapT8IhnrG2gaj9Ococc2K+Vfllse6S36lt89OZCO
+hV+2tIJYB+1yuqeUIW3/+/yOAe2Qjy8xkFLQj1wND8R8p0P2ZhP3xy6pMnOcA2RP4t/Z6ISk18ae
+Cs/QwaC0CrNV2UlsSaGgtyA6/GXZDyMCT46NGmoPllkXDud2IX57OUu56zfqtm96qeb4LpsJqgsT
+2PPUoYmz1mHER02q6OvY1DQYNHF+UlQ+REGu1j6eETVZY80ZMyUikNlZoBwRAg0rc67rzgj5zNnq
+KJk3ElnMc6I3Xhvtln0llkvhzJOI49mMMmoUag==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyValue>

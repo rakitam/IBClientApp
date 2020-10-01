@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.Certificate;
@@ -27,14 +28,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import keystore.KeyStoreReader;
+
 //Generise tajni kljuc
 //Kriptije sadrzaj elementa student tajnim kljucem
 //Kriptuje tajni kljuc javnim kljucem
 //Kriptovani tajni kljuc se stavlja kao KeyInfo kriptovanog elementa
+
 public class AsymmetricKeyEncryption {
-	private static final String IN_FILE = "./data/univerzitet.xml";
-	private static final String OUT_FILE = "./data/univerzitet_enc2.xml";
-	private static final String KEY_STORE_FILE = "./data/primer.jks";
+	
+	private static final String IN_FILE = "./data/mailsent_signed.xml";
+	private static final String OUT_FILE = "./data/mailsent_signed_encrypted.xml";
+	private static final String KEY_STORE_FILE = "./data/usera.jks";
+	private static final String KEY_STORE_PASSWORD = "1234";
+	
+	// Treba nam javni kljuc usera b iz njegovog sertifikata koji se nalazi u keystore fajlu usera a
+	private static final String KEY_STORE_ALIAS_USERB = "userb";
+	
+	private static KeyStoreReader keyStoreReader = new KeyStoreReader();
 
 	static {
 		// staticka inicijalizacija
@@ -42,7 +53,7 @@ public class AsymmetricKeyEncryption {
 		org.apache.xml.security.Init.init();
 	}
 
-	public void testIt() {
+	public static void testIt() {
 		// ucitava se dokument
 		Document doc = loadDocument(IN_FILE);
 		
@@ -50,8 +61,15 @@ public class AsymmetricKeyEncryption {
 		System.out.println("Generating secret key ....");
 		SecretKey secretKey = generateDataEncryptionKey();
 		
-		// ucitava sertifikat za kriptovanje tajnog kljuca
-		Certificate cert = readCertificate();
+		// ucitava sertifikat za kriptovanje tajnog kljuca javnim kljucem primaoca poruke
+		//Certificate cert = readCertificate();
+		
+		// ucitavanje "usera.jks" keystore file-a
+		KeyStore keyStore = keyStoreReader.readKeyStore(KEY_STORE_FILE, KEY_STORE_PASSWORD.toCharArray());
+		
+		// ucitava sertifikat za kriptovanje tajnog kljuca javnim kljucem primaoca poruke
+		// preuzimanje sertifikata userb iz keystore file-a "usera.jks"
+		Certificate cert = keyStoreReader.getCertificateFromKeyStore(keyStore, KEY_STORE_ALIAS_USERB);
 		
 		// kriptuje se dokument
 		System.out.println("Encrypting....");
@@ -67,7 +85,7 @@ public class AsymmetricKeyEncryption {
 	/**
 	 * Kreira DOM od XML dokumenta
 	 */
-	private Document loadDocument(String file) {
+	private static Document loadDocument(String file) {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(true);
@@ -84,16 +102,16 @@ public class AsymmetricKeyEncryption {
 	/**
 	 * Ucitava sertifikat is KS fajla alias primer
 	 */
-	private Certificate readCertificate() {
+	private static Certificate readCertificate() {
 		try {
 			// kreiramo instancu KeyStore
 			KeyStore ks = KeyStore.getInstance("JKS", "SUN");
 			// ucitavamo podatke
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream(KEY_STORE_FILE));
-			ks.load(in, "primer".toCharArray());
+			ks.load(in, KEY_STORE_PASSWORD.toCharArray());
 
-			if (ks.isKeyEntry("primer")) {
-				Certificate cert = ks.getCertificate("primer");
+			if (ks.isKeyEntry(KEY_STORE_ALIAS_USERB)) {
+				Certificate cert = ks.getCertificate(KEY_STORE_ALIAS_USERB);
 				return cert;
 			} else
 				return null;
@@ -103,11 +121,12 @@ public class AsymmetricKeyEncryption {
 			return null;
 		} 
 	}
+	
 
 	/**
 	 * Snima DOM u XML fajl
 	 */
-	private void saveDocument(Document doc, String fileName) {
+	private static void saveDocument(Document doc, String fileName) {
 		try {
 			File outFile = new File(fileName);
 			FileOutputStream f = new FileOutputStream(outFile);
@@ -130,7 +149,7 @@ public class AsymmetricKeyEncryption {
 	/**
 	 * Generise tajni kljuc
 	 */
-	private SecretKey generateDataEncryptionKey() {
+	private static SecretKey generateDataEncryptionKey() {
 
 		try {
 			KeyGenerator keyGenerator = KeyGenerator.getInstance("DESede"); // Triple
@@ -144,9 +163,9 @@ public class AsymmetricKeyEncryption {
 	}
 
 	/**
-	 * Kriptuje sadrzaj prvog elementa odsek
+	 * Kriptovanje poruke
 	 */
-	private Document encrypt(Document doc, SecretKey key, Certificate certificate) {
+	private static Document encrypt(Document doc, SecretKey key, Certificate certificate) {
 
 		try {
 
@@ -162,13 +181,14 @@ public class AsymmetricKeyEncryption {
 			
 			// inicijalizacija za kriptovanje tajnog kljuca javnim RSA kljucem
 			keyCipher.init(XMLCipher.WRAP_MODE, certificate.getPublicKey());
+			System.out.println("Public key B: " + certificate.getPublicKey());
 			
 			// kreiranje EncryptedKey objekta koji sadrzi  enkriptovan tajni (session) kljuc
 			EncryptedKey encryptedKey = keyCipher.encryptKey(doc, key);
 			
 			// u EncryptedData element koji se kriptuje kao KeyInfo stavljamo
 			// kriptovan tajni kljuc
-			// ovaj element je koreni elemnt XML enkripcije
+			// ovaj element je koreni element XML enkripcije
 			EncryptedData encryptedData = xmlCipher.getEncryptedData();
 			
 			// kreira se KeyInfo element
@@ -184,10 +204,13 @@ public class AsymmetricKeyEncryption {
 			encryptedData.setKeyInfo(keyInfo);
 
 			// trazi se element ciji sadrzaj se kriptuje
-			NodeList odseci = doc.getElementsByTagName("odsek");
-			Element odsek = (Element) odseci.item(0);			
-
-			xmlCipher.doFinal(doc, doc.getDocumentElement(), true); // kriptuje sa sadrzaj
+			// emails = lista cvoreva - svi elementi koji imaju tag "email"
+			NodeList emails = doc.getElementsByTagName("email");
+			// prvi email element iz liste svih email elemenata
+			Element email = (Element) emails.item(0);			
+			
+			xmlCipher.doFinal(doc, doc.getDocumentElement(), true); // kriptuje se sadrzaj
+			System.out.println("Encryption done");
 
 			return doc;
 
@@ -197,8 +220,8 @@ public class AsymmetricKeyEncryption {
 		} 
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		AsymmetricKeyEncryption encrypt = new AsymmetricKeyEncryption();
 		encrypt.testIt();
-	}
+	}*/
 }
