@@ -21,13 +21,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import keystore.KeyStoreReader;
+
 //Dekriptuje tajni kljuc privatnim kljucem
 //Tajnim kljucem dekriptuje podatke
 public class AsymmetricKeyDecryption {
 
-	private static final String IN_FILE = "./data/univerzitet_enc2.xml";
-	private static final String OUT_FILE = "./data/univerzitet_dec2.xml";
-	private static final String KEY_STORE_FILE = "./data/primer.jks";
+	private static final String IN_FILE = "./data/mail_recieved_encrypted.xml";
+	private static final String OUT_FILE = "./data/mail_recieved_decrypted.xml";
+	private static final String KEY_STORE_FILE = "./data/userb.jks";
+	private static final String KEY_STORE_PASSWORD = "1234";
+	private static final String KEY_STORE_ALIAS_USERB = "userb";
+	
+	private static final String KEY_STORE_ALIAS_USERA = "usera";
+		
+	private static KeyStoreReader keyStoreReader = new KeyStoreReader();
 
 	static {
 		// staticka inicijalizacija
@@ -35,26 +43,26 @@ public class AsymmetricKeyDecryption {
 		org.apache.xml.security.Init.init();
 	}
 
-	public void testIt() {
+	public static void testIt() {
 		// ucitava se dokument
 		Document doc = loadDocument(IN_FILE);
 
 		// ucitava se privatni kljuc
 		PrivateKey pk = readPrivateKey();
 
-		// kriptuje se dokument
+		// dekriptuje se dokument
 		System.out.println("Decrypting....");
 		doc = decrypt(doc, pk);
 
 		// snima se dokument
 		saveDocument(doc, OUT_FILE);
-		System.out.println("Encryption done");
+		System.out.println("Decryption done");
 	}
 
 	/**
 	 * Kreira DOM od XML dokumenta
 	 */
-	private Document loadDocument(String file) {
+	private static Document loadDocument(String file) {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(true);
@@ -71,7 +79,7 @@ public class AsymmetricKeyDecryption {
 	/**
 	 * Snima DOM u XML fajl
 	 */
-	private void saveDocument(Document doc, String fileName) {
+	public static void saveDocument(Document doc, String fileName) {
 		try {
 			File outFile = new File(fileName);
 			FileOutputStream f = new FileOutputStream(outFile);
@@ -92,19 +100,19 @@ public class AsymmetricKeyDecryption {
 	}
 
 	/**
-	 * Ucitava privatni kljuc is KS fajla alias primer
+	 * Ucitava privatni kljuc is KS fajla userb.jks (alias userb)
 	 */
-	private PrivateKey readPrivateKey() {
+	private static PrivateKey readPrivateKey() {
 		try {
 			// kreiramo instancu KeyStore
 			KeyStore ks = KeyStore.getInstance("JKS", "SUN");
 
 			// ucitavamo podatke
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream(KEY_STORE_FILE));
-			ks.load(in, "primer".toCharArray());
+			ks.load(in, KEY_STORE_PASSWORD.toCharArray());
 
-			if (ks.isKeyEntry("primer")) {
-				PrivateKey pk = (PrivateKey) ks.getKey("primer", "primer".toCharArray());
+			if (ks.isKeyEntry(KEY_STORE_ALIAS_USERB)) {
+				PrivateKey pk = (PrivateKey) ks.getKey(KEY_STORE_ALIAS_USERB, KEY_STORE_PASSWORD.toCharArray());
 				return pk;
 			} else
 				return null;
@@ -118,7 +126,7 @@ public class AsymmetricKeyDecryption {
 	/**
 	 * Kriptuje sadrzaj prvog elementa odsek
 	 */
-	private Document decrypt(Document doc, PrivateKey privateKey) {
+	private static Document decrypt(Document doc, PrivateKey privateKey) {
 
 		try {
 			// cipher za dekritpovanje XML-a
@@ -145,8 +153,8 @@ public class AsymmetricKeyDecryption {
 		}
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		AsymmetricKeyDecryption decrypt = new AsymmetricKeyDecryption();
 		decrypt.testIt();
-	}
+	}*/
 }

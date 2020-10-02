@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.security.KeyStore;
 import java.security.PublicKey;
+import java.security.Security;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -38,6 +39,7 @@ import java.util.Properties;
 import java.util.Base64.Encoder;
 
 import org.apache.xml.security.utils.JavaUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.google.api.services.gmail.Gmail;
 
@@ -84,6 +86,9 @@ public class WriteMailClient extends MailClient {
             System.out.println("Insert body:");
             String body = reader.readLine(); 
             
+            /*
+             *  1. Enkripcija i slanje potpisane poruke u XML formatu
+             */
             // Kreiramo XML file i kreiramo textNodes sa unetim vrednostima subject i body
             createXML(subject, body);
             System.out.println("Kreiran XML fajl");
@@ -109,7 +114,7 @@ public class WriteMailClient extends MailClient {
 	                    
                                   
             /* 
-             * Bez potpisa, CSV format poruka koje se razmenjuju - KONTROLNA TACKA
+             * 2. Bez potpisa, CSV format poruka koje se razmenjuju - KONTROLNA TACKA
              * 
              * //Compression
             String compressedSubject = Base64.encodeToString(GzipUtil.compress(subject));
@@ -125,7 +130,7 @@ public class WriteMailClient extends MailClient {
 			aesCipherEnc.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec1);
 			
 			
-			//sifrovanje
+			//sifrovanje tela poruke
 			byte[] ciphertext = aesCipherEnc.doFinal(compressedBody.getBytes());
 			String ciphertextStr = Base64.encodeToString(ciphertext);
 			System.out.println("Kriptovan tekst: " + ciphertextStr);
@@ -135,6 +140,7 @@ public class WriteMailClient extends MailClient {
 			IvParameterSpec ivParameterSpec2 = IVHelper.createIV();
 			aesCipherEnc.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec2);
 			
+			//sifrovanje subjekta poruke
 			byte[] ciphersubject = aesCipherEnc.doFinal(compressedSubject.getBytes());
 			String ciphersubjectStr = Base64.encodeToString(ciphersubject);
 			System.out.println("Kriptovan subject: " + ciphersubjectStr);

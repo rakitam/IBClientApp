@@ -31,7 +31,7 @@ import org.w3c.dom.NodeList;
 import keystore.KeyStoreReader;
 
 //Generise tajni kljuc
-//Kriptije sadrzaj elementa student tajnim kljucem
+//Kriptije sadrzaj elementa email tajnim kljucem
 //Kriptuje tajni kljuc javnim kljucem
 //Kriptovani tajni kljuc se stavlja kao KeyInfo kriptovanog elementa
 
@@ -64,7 +64,7 @@ public class AsymmetricKeyEncryption {
 		// ucitava sertifikat za kriptovanje tajnog kljuca javnim kljucem primaoca poruke
 		//Certificate cert = readCertificate();
 		
-		// ucitavanje "usera.jks" keystore file-a
+		// ucitavanje "usera.jks" keystore file-a (za potrebe dobavljanja javnog kljuca iz sertifikata usera b)
 		KeyStore keyStore = keyStoreReader.readKeyStore(KEY_STORE_FILE, KEY_STORE_PASSWORD.toCharArray());
 		
 		// ucitava sertifikat za kriptovanje tajnog kljuca javnim kljucem primaoca poruke
@@ -100,7 +100,7 @@ public class AsymmetricKeyEncryption {
 	}
 
 	/**
-	 * Ucitava sertifikat is KS fajla alias primer
+	 * Ucitava sertifikat is KS fajla usera.jks (alias "usera")
 	 */
 	private static Certificate readCertificate() {
 		try {

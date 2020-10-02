@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
 //Vrsi proveru potpisa
 public class VerifySignatureEnveloped {
 	
-	private static final String IN_FILE = "./data/mailsent_signed.xml";
+	private static final String IN_FILE = "./data/mail_recieved_decrypted.xml";
 	
     static {
     	//staticka inicijalizacija
@@ -28,19 +28,21 @@ public class VerifySignatureEnveloped {
         org.apache.xml.security.Init.init();
     }
 	
-	public void testIt() {
+	public static void testIt() {
 		//ucitava se dokument
 		Document doc = loadDocument(IN_FILE);
 		
 		//proverava potpis
 		boolean res = verifySignature(doc);
 		System.out.println("Verification = " + res);
+		
+		//TODO: Validacija potpisa - proverava se integritet i neporecivost poruke
 	}
 	
 	/**
 	 * Kreira DOM od XML dokumenta
 	 */
-	private Document loadDocument(String file) {
+	private static Document loadDocument(String file) {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(true);
@@ -54,7 +56,7 @@ public class VerifySignatureEnveloped {
 		}
 	}
 	
-	private boolean verifySignature(Document doc) {
+	private static boolean verifySignature(Document doc) {
 		
 		try {
 			//Pronalazi se prvi Signature element 
@@ -95,9 +97,9 @@ public class VerifySignatureEnveloped {
 		} 
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		VerifySignatureEnveloped verify = new VerifySignatureEnveloped();
 		verify.testIt();
-	}
+	}*/
 
 }

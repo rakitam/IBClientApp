@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><email>
+<subject>Enkriptovana poruka</subject>
+<body>Poslao sam enkriptovanu poruku</body>
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:SignedInfo>
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+<ds:Reference URI="">
+<ds:Transforms>
+<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+<ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/>
+</ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+<ds:DigestValue>+YWYW/LxfrhfsOvafVpR/zqYpxk=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue>
+WbISr6KKswMc2JgyQotSsEty/m8DHkcAe4x1tX2CoteNizCx1eW80SHCpER7APn2BueitEdeUgUr
+djgmxyyIT60lzvNfKqLrkyUOhpCzh6nDHiwmaOn+1pEmFtCZDv34kcmHzwDYy/r147ZFT5E8GDnn
+uTImEFKv876LYKuobrHpzAjKLeRtq//oJTQ9EaJvm4ufG+VE7td7+nIofWeTv5J6tqqmlXoVFtIz
+qBF3IqB3T9yRBLgBokotkuT+zhd0ZAEJohFf18AIRDe9CmfTQ5Aokwo6klKYOXh+87EMu7cnjGkf
+XCGYb3Hrvs8KJb3YS3VrzeqobtYALiqmIqj0bA==
+</ds:SignatureValue>
+<ds:KeyInfo>
+<ds:KeyValue>
+<ds:RSAKeyValue>
+<ds:Modulus>
+nQHoOEngo0Rd5spKEXmaOQ3w+uoZoesWQioWBmtH1aYVRro2aCdyuMhOIOOr/YjFTCA7Vs+uyM4P
+5hNyGbHb1fLU5pzKVh966oz42HBVq88Rv6Yo/eBr252MJU9+84EOfw8meUwK545KyKk10AGd21Fq
+H8xH84xe00ZX+yyxUiPf9RiwroBQua1aAERLhPjudZYbdqlOFywT/D9T5eWn8fMjiKwKXNiuh7Tx
+DaXAAm2KIJqTjNQvXT53ujOyW+70zTnj+6kVcYlOUbLPjzIm7Qkr9war7NejAc9R4SD4ft0f+mwb
+vl+e14+65IypFQtU+vaUK/kjHXWZQstxP9lZJw==
+</ds:Modulus>
+<ds:Exponent>AQAB</ds:Exponent>
+</ds:RSAKeyValue>
+</ds:KeyValue>
+<ds:X509Data>
+<ds:X509Certificate>
+MIIDbzCCAlcCBF9ye4kwDQYJKoZIhvcNAQEFBQAwfDEdMBsGCSqGSIb3DQEJARYOdXNlcmFAdGVz
+dC5jb20xCzAJBgNVBAYTAlJTMQ8wDQYDVQQIDAZTZXJiaWExETAPBgNVBAcMCE5vdmkgU2FkMQww
+CgYDVQQKDANVTlMxDDAKBgNVBAsMA0ZUTjEOMAwGA1UEAwwFdXNlcmEwHhcNMjAwOTI5MDAxMDQ5
+WhcNMjEwOTI5MDAxMDQ5WjB8MR0wGwYJKoZIhvcNAQkBFg51c2VyYUB0ZXN0LmNvbTELMAkGA1UE
+BhMCUlMxDzANBgNVBAgMBlNlcmJpYTERMA8GA1UEBwwITm92aSBTYWQxDDAKBgNVBAoMA1VOUzEM
+MAoGA1UECwwDRlROMQ4wDAYDVQQDDAV1c2VyYTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
+ggEBAJ0B6DhJ4KNEXebKShF5mjkN8PrqGaHrFkIqFgZrR9WmFUa6NmgncrjITiDjq/2IxUwgO1bP
+rsjOD+YTchmx29Xy1OacylYfeuqM+NhwVavPEb+mKP3ga9udjCVPfvOBDn8PJnlMCueOSsipNdAB
+ndtRah/MR/OMXtNGV/sssVIj3/UYsK6AULmtWgBES4T47nWWG3apThcsE/w/U+Xlp/HzI4isClzY
+roe08Q2lwAJtiiCak4zUL10+d7ozslvu9M054/upFXGJTlGyz48yJu0JK/cGq+zXowHPUeEg+H7d
+H/psG75fntePuuSMqRULVPr2lCv5Ix11mULLcT/ZWScCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEA
+aGlcFgfg46sO3bD7/OEUN2vG7jFBtxPeglsrOi0g+KqI/5AHZNGorkJbTkwUDeU+pzlWcj5EoYLk
+6v6psl62fmbOgswh00sGaVaWMUDYg3gFfHW+XYg3qgkbn/rtu2xgfjl3e4TEr8x5YS6EtSbGkd1h
+HPoovodKIb1cbAYjE/D2ibyzik2a8zG1LfDqSiBmeka+uZkZ3m/Bf35M4Rqkhm9Cj94mmkfk/XvE
+P4pYGYtLsSsav3YkdZlCx/FZOcHbObn/XqBYCVOCvyDd9juhYIvcmenEPKtJ7CR3do3Owr7353B4
+LGySXRGxTVGmb7Frgcdl+e8bMQbkzZ+DFr478A==
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+</ds:Signature></email>
