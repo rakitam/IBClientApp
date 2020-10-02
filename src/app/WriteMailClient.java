@@ -4,6 +4,7 @@ package app;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.security.KeyStore;
 import java.security.PublicKey;
 
@@ -27,6 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -94,11 +96,16 @@ public class WriteMailClient extends MailClient {
 	        AsymmetricKeyEncryption.testIt();
 	        System.out.println("XML fajl enkriptovan");
 	        
+	        // Konvertovanje enkriptovanog XML dokumenta u DOM
+	        Document encrDoc = convertXMLFileToXMLDocument(XML_ENC_MESSAGE_PATH);
 	        
-	        //TODO: Slanje enkriptovanog XML-a u body-ju poruke
+	        // Pretvaranje XML-a u String
+	        String xmlString = XmlDocumentToString(encrDoc);
+	        System.out.println(xmlString);
 	        
-	        //MimeMessage mimeMessage = MailHelper.createMimeMessage(reciever, XML_ENC_MESSAGE_PATH );
-        	//MailWritter.sendMessage(service, "me", mimeMessage);  	          
+	        // Slanje enkriptovanog XML-a u body-ju poruke	        
+	        MimeMessage mimeMessage = MailHelper.createMimeMessage(reciever, "Encrypted message", xmlString);
+        	MailWritter.sendMessage(service, "me", mimeMessage);  	          
 	                    
                                   
             /* 
@@ -203,6 +210,91 @@ public class WriteMailClient extends MailClient {
 	 		
 	    } catch (Exception e) {
 	         e.printStackTrace();
-	    }   
+	    } 
 	}	
+	
+	// Kreiranje poruke
+    public static MimeMessage createMessageWithAttachment(String reciever, String filename) throws MessagingException {
+    	
+    	Properties props = new Properties();
+	    Session session = Session.getDefaultInstance(props, null);
+    	MimeMessage message = new MimeMessage(session);
+
+    	BodyPart messageBodyPart1 = new MimeBodyPart();  
+        messageBodyPart1.setText("This message is encrypted");
+    	
+    	BodyPart messageBodyPart = new MimeBodyPart();
+    	DataSource source = new FileDataSource(filename);
+    	messageBodyPart.setDataHandler(new DataHandler(source));
+    	messageBodyPart.setFileName(filename);
+    	
+    	Multipart multipart = new MimeMultipart();
+    	multipart.addBodyPart(messageBodyPart1);
+    	multipart.addBodyPart(messageBodyPart);
+    	
+    	message.setSubject("Encrypted XML message");
+    	message.setRecipient(Message.RecipientType.TO, new InternetAddress(reciever));
+    	message.setContent(multipart);
+    	
+    	return message;
+    }
+    
+    // Konvertovanje XML-a u DOM
+    private static Document convertXMLFileToXMLDocument(String filePath) 
+    {
+        //Parser that produces DOM object trees from XML content
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+         
+        //API to obtain DOM Document instance
+        DocumentBuilder builder = null;
+        try
+        {
+            //Create DocumentBuilder with default configuration
+            builder = factory.newDocumentBuilder();
+             
+            //Parse the content to Document object
+            Document xmlDocument = builder.parse(new File(filePath));
+             
+            return xmlDocument;
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    // Konvertovanje XML dokumenta u String
+    private static String XmlDocumentToString(Document xmlDocument) {
+    	
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer;
+        String xmlString = null;
+        
+        try {
+            transformer = tf.newTransformer();
+             
+            // Uncomment if you do not require XML declaration
+            //transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+             
+            //A character stream that collects its output in a string buffer, 
+            //which can then be used to construct a string.
+            StringWriter writer = new StringWriter();
+     
+            //transform document to string 
+            transformer.transform(new DOMSource(xmlDocument), new StreamResult(writer));
+     
+            xmlString = writer.getBuffer().toString();   
+            System.out.println(xmlString);                      //Print to console or logs
+        } 
+        catch (TransformerException e) 
+        {
+            e.printStackTrace();
+        }
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+		return xmlString;
+    }
 }
