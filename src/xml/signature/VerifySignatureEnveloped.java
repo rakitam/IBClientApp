@@ -15,6 +15,7 @@ import org.apache.xml.security.signature.XMLSignature;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 //Vrsi proveru potpisa
@@ -28,16 +29,35 @@ public class VerifySignatureEnveloped {
         org.apache.xml.security.Init.init();
     }
 	
-	public static void testIt() {
+	public static boolean testIt() {
 		//ucitava se dokument
 		Document doc = loadDocument(IN_FILE);
 		
 		//proverava potpis
 		boolean res = verifySignature(doc);
 		System.out.println("Verification = " + res);
-		
-		//TODO: Validacija potpisa - proverava se integritet i neporecivost poruke
+		return res;	
 	}
+	
+	// Slucaj kada je narusen integritet poruke
+	public static void testItFaulty() {
+		//ucitava se dokument
+		Document doc = loadDocument(IN_FILE);
+		
+		// menjamo sadrzaj poruke
+		System.out.println("Menjamo subjekat");
+		Node fc = doc.getFirstChild();
+		NodeList list = fc.getChildNodes();
+		for (int i = 0; i <list.getLength(); i++) {
+			Node node = list.item(i);
+			if("subject".equals(node.getNodeName())) {
+				node.setTextContent("Subjekat poruke izmenjen");
+			}
+		}
+		boolean res = verifySignature(doc);
+		System.out.println("Verification = " + res + "\n");
+	}
+	
 	
 	/**
 	 * Kreira DOM od XML dokumenta

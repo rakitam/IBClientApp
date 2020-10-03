@@ -38,6 +38,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 //import org.apache.xml.security.utils.JavaUtils;
@@ -139,15 +141,23 @@ public class ReadMailClient extends MailClient {
 		AsymmetricKeyDecryption.testIt();
 		System.out.println("Fajl dekriptovan");
 		
-		// Verifikujemo potpis
-		VerifySignatureEnveloped.testIt();
-		System.out.println("Potpis verifikovan.");
-		
 		Document decrDoc = convertXMLFileToXMLDocument(RECIEVED_DEC_EMAIL);
 		
-		// Prikazujemo dekriptovan sadrzaj
-		String decryptedString = XmlDocumentToString(decrDoc);
-		System.out.println("Ovo je dekriptovan sadrzaj poruke: " + decryptedString);
+		// Verifikujemo potpis - ukoliko integritet i neporecivost poruke nisu naruseni, 
+		//prikazujemo dekriptovan sadrzaj
+		if (VerifySignatureEnveloped.testIt()) {
+			System.out.println("Potpis verifikovan.");
+			printContent(decrDoc);			
+		} 
+		
+		else {
+			System.out.println("Potpis nije validan.");			
+		}
+		
+		// Prikaz slucaja kada se menja sadrzaj poruke - narusen integritet
+		VerifySignatureEnveloped.testItFaulty();
+		System.out.println("Narusen integritet poruke - sadrzaj je izmenjen.");		
+		
 		
 		
 		/* 
@@ -293,5 +303,20 @@ public class ReadMailClient extends MailClient {
             e.printStackTrace();
         }
 		return xmlString;
-    }	
+    }
+    
+    // Print sadrzaj mejla
+ 	public static void printContent(Document doc) {
+ 		Node fc = doc.getFirstChild();
+ 		NodeList list = fc.getChildNodes();
+ 		for (int i = 0; i <list.getLength(); i++) {
+ 			Node node = list.item(i);
+ 			if("subject".equals(node.getNodeName())) {
+ 				System.out.println("Subject: " + node.getTextContent());
+ 			}
+ 			if("body".equals(node.getNodeName())) {
+ 				System.out.println("Body: " + node.getTextContent());
+ 			}
+ 		}
+ 	}
 }
